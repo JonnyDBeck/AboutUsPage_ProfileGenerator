@@ -3,6 +3,9 @@ const { rejects } = require('assert');
 const prompt = require('prompt');
 prompt.start();
 
+//Other Global Vars
+var employeeArray = [];
+
 class Employee {
     //constructing
     constructor(name, id, email){
@@ -12,12 +15,10 @@ class Employee {
 
         //0 - Unassigned, 1 - Manager, 2 - Engineer, 3 - Intern
         this.type = 0;
-        console.log(this.type);
     }
 
     // Method to set as a type with accompanyinng data;
     setAs(type, data){
-        console.log(this.type);
         this.type = type;
         this.data = data;
     }
@@ -41,31 +42,123 @@ class Employee {
     }
 }
 
-const askManagerInfo = new Promise((resolve, reject) => {
-    //Asking For Info
-    console.log(`Input Manager Info`)
-    prompt.get(['Name', 'Email', 'OfficeNumber'], function (err, result) {
-        console.log('Command-line input received:');
-        console.log('  Name: ' + result.Name);
-        console.log('  Email: ' + result.Email);
-        console.log('  Off-Num: ' + result.OfficeNumber);
-      
+function askManagerInfo(){ 
+    return new Promise((resolve, reject) => {
+        //Asking For Info
+        console.log(`Input Manager Info`)
+        prompt.get(['Name', 'Email', 'OfficeNumber'], function (err, result) {
+            //Parsing info into Employee Class
+            let manager = new Employee(result.Name, 1, result.Email,);
+            manager.setAs(1, result.OfficeNumber);
+        
+            //Returning Manager Employeee Class
+            resolve(manager)
+        })
+    });
+}
 
-        //Parsing info into Employee Class
-        const manager = new Employee(result.Name, 1, result.Email,);
-        manager.setAs(1, result.OfficeNumber);
-    
-        //Returning Manager Employeee Class
-        resolve(manager)
-    })
-});
+function askEngineerInfo(){ 
+    return new Promise((resolve, reject) => {
+        //Asking For Info
+        console.log(`Input Engineer Info`)
+        prompt.get(['Name', 'Email', 'GithubUsername'], function (err, result) {
+            //Parsing info into Employee Class
+            let engineer = new Employee(result.Name, 1, result.Email,);
+            engineer.setAs(1, result.GithubUsername);
+        
+            //Returning Manager Employeee Class
+            resolve(engineer)
+        })
+    });
+}
+
+function askInternInfo(){ 
+    return new Promise((resolve, reject) => {
+        //Asking For Info
+        console.log(`Input Intern Info`)
+        prompt.get(['Name', 'Email', 'School'], function (err, result) {
+            //Parsing info into Employee Class
+            let intern = new Employee(result.Name, 1, result.Email,);
+            intern.setAs(1, result.School);
+        
+            //Returning Manager Employeee Class
+            resolve(intern)
+        })
+    });
+}
+
+//This asks if they want another Employee
+//Simulates Looping with recursive functions
+//Bear with me this part gets complicated
+function askMoreEmployees(){ 
+    return new Promise((resolve, reject) => {
+        console.log(`Do you have another employee\n(E - New Engineer, I - New Intern, S - Show List, R - Remove From List, N - No More Employees)`)
+        prompt.get(['Answer'], function (err, result) {
+            //Parses user Input into usable info
+            var userResponse = result.Answer.toUpperCase().trim();
+            
+            //Each Response has an if
+            //New Engineer
+            if (userResponse == `E`){
+                askEngineerInfo().then( res => {
+                    employeeArray.push(res);
+                    askMoreEmployees();
+                })
+            //New Intern
+            } else if (userResponse == `I`){
+                askInternInfo().then( res => {
+                    employeeArray.push(res);
+                    askMoreEmployees();
+                })
+            //Gives List of Employees
+            } else if (userResponse == `S`){
+                showAllEmployees();
+                askMoreEmployees();
+            //Removes an Employee
+            } else if (userResponse == `R`){
+                console.log(`Give the index of employee ("C" to cancel)`)
+                prompt.get(['Answer'], function (err, employeeIndex) {
+                    //Same as Above
+                    const  empResponse = employeeIndex.Answer.toUpperCase().trim();
+
+                    //Edge Cases
+                    if (empResponse == `C`){
+                        askMoreEmployees();
+                        return;
+                    }
+
+                    //Splicing
+                    //This was originally in a try-catch so it could check NaNs and Array OOB but nothing triggered
+                    //Honestly, Way to tired to complete this feature that is not even mentioned in the assignment
+                    //At least it works -_-
+                    employeeArray.splice(empResponse, 1)
+                    askMoreEmployees();
+                })
+            //No more employees to add
+            } else if (userResponse == 'N') {
+                return;
+            //In case Response is Invalid
+            } else {
+                console.log(`Invalid Response`);
+                askMoreEmployees();
+            }
+        })
+    });
+}
 
 //Actual Running Code
-var employeeArray = [];
-askManagerInfo.then( res => {
+askManagerInfo().then( res => {
     employeeArray.push(res);
-    console.log(Employee.prototype.getInfo.call(employeeArray[0]));
+    askMoreEmployees().then( res => {
+        console.log(employeeArray);
+    })
 })
+
+function showAllEmployees(){
+    employeeArray.forEach(employee => {
+        console.log(Employee.prototype.getInfo.call(employee))
+    });
+}
 
 function createWebpage(){
 
