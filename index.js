@@ -5,6 +5,7 @@ prompt.start();
 
 //Other Global Vars
 var employeeArray = [];
+var nextId = 1;
 
 class Employee {
     //constructing
@@ -48,7 +49,8 @@ function askManagerInfo(){
         console.log(`Input Manager Info`)
         prompt.get(['Name', 'Email', 'OfficeNumber'], function (err, result) {
             //Parsing info into Employee Class
-            let manager = new Employee(result.Name, 1, result.Email,);
+            let manager = new Employee(result.Name, nextId, result.Email,);
+            nextId++;
             manager.setAs(1, result.OfficeNumber);
         
             //Returning Manager Employeee Class
@@ -63,7 +65,8 @@ function askEngineerInfo(){
         console.log(`Input Engineer Info`)
         prompt.get(['Name', 'Email', 'GithubUsername'], function (err, result) {
             //Parsing info into Employee Class
-            let engineer = new Employee(result.Name, 1, result.Email,);
+            let engineer = new Employee(result.Name, nextId, result.Email,);
+            nextId++;
             engineer.setAs(1, result.GithubUsername);
         
             //Returning Manager Employeee Class
@@ -78,7 +81,8 @@ function askInternInfo(){
         console.log(`Input Intern Info`)
         prompt.get(['Name', 'Email', 'School'], function (err, result) {
             //Parsing info into Employee Class
-            let intern = new Employee(result.Name, 1, result.Email,);
+            let intern = new Employee(result.Name, nextId, result.Email,);
+            nextId++;
             intern.setAs(1, result.School);
         
             //Returning Manager Employeee Class
