@@ -155,12 +155,50 @@ function addToPage(){
 
             fs.appendFile(
                 'GeneratedHtml.html',
-                `<div><h1>${empInfo[0]}</h1><h2>${empInfo[1]}</h2><ul><li>${empInfo[2]}</li><li>${empInfo[3]}</li><li>${empInfo[4]}</li></ul></div>`,
+                `<div><h1>${empInfo[0]}</h1><h2>${empInfo[1]}</h2><ul><li>${empInfo[2]}</li><a href="mailto:${empInfo[3]}"><li>Email: ${empInfo[3]}</li></a>`,
                 function (err) {
                     if (err) throw err;
-                    console.log(`Info Added to HTML`);
+                    console.log(`Employee Added to HTML`);
                 }
             )
+
+            if (empInfo[1] == "Manager"){
+                fs.appendFile(
+                    'GeneratedHtml.html',
+                    `<li>Office: ${empInfo[4]}</li></ul></div>`,
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`Employee Info Added to HTML`);
+                    }
+                )
+            } else if (empInfo[1] == "Engineer"){
+                fs.appendFile(
+                    'GeneratedHtml.html',
+                    `<li>Github: <a href="https://github.com/${empInfo[4]}">${empInfo[4]}</a></li></ul></div>`,
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`Employee Info Added to HTML`);
+                    }
+                )
+            } else if (empInfo[1] == "Intern"){
+                fs.appendFile(
+                    'GeneratedHtml.html',
+                    `<li>School: ${empInfo[4]}</li></ul></div>`,
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`Employee Info Added to HTML`);
+                    }
+                )
+            } else{
+                fs.appendFile(
+                    'GeneratedHtml.html',
+                    `</ul></div>`,
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`Employee Info Added to HTML`);
+                    }
+                )
+            }
         });
         resolve();
     })
@@ -180,10 +218,9 @@ function endPage(){
 function deleteWebpage(){
     try {
         fs.unlink('GeneratedHtml.html', function (err) {
-            if (err) throw err;
             console.log('\nOriginal File Deleted');
         });
     } catch (error) {
-        //Try catch is here so program wont freak out if there is an error
+        console.log('\n');
     }
 }
