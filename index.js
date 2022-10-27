@@ -3,6 +3,9 @@ const { rejects } = require('assert');
 const prompt = require('prompt');
 prompt.start();
 
+//setting up File System
+var fs = require('fs');
+
 //Other Global Vars
 var employeeArray = [];
 var nextId = 1;
@@ -67,7 +70,7 @@ function askEngineerInfo(){
             //Parsing info into Employee Class
             let engineer = new Employee(result.Name, nextId, result.Email,);
             nextId++;
-            engineer.setAs(1, result.GithubUsername);
+            engineer.setAs(2, result.GithubUsername);
         
             //Returning Manager Employeee Class
             resolve(engineer)
@@ -83,7 +86,7 @@ function askInternInfo(){
             //Parsing info into Employee Class
             let intern = new Employee(result.Name, nextId, result.Email,);
             nextId++;
-            intern.setAs(1, result.School);
+            intern.setAs(3, result.School);
         
             //Returning Manager Employeee Class
             resolve(intern)
@@ -106,18 +109,18 @@ function askMoreEmployees(){
             if (userResponse == `E`){
                 askEngineerInfo().then( res => {
                     employeeArray.push(res);
-                    askMoreEmployees();
+                    askMoreEmployees().then( res => {resolve(res);});
                 })
             //New Intern
             } else if (userResponse == `I`){
                 askInternInfo().then( res => {
                     employeeArray.push(res);
-                    askMoreEmployees();
+                    askMoreEmployees().then( res => {resolve(res);});
                 })
             //Gives List of Employees
             } else if (userResponse == `S`){
                 showAllEmployees();
-                askMoreEmployees();
+                askMoreEmployees().then( res => {resolve(res);});
             //Removes an Employee
             } else if (userResponse == `R`){
                 console.log(`Give the index of employee ("C" to cancel)`)
@@ -127,7 +130,7 @@ function askMoreEmployees(){
 
                     //Edge Cases
                     if (empResponse == `C`){
-                        askMoreEmployees();
+                        askMoreEmployees().then( res => {resolve(res);});
                         return;
                     }
 
@@ -136,15 +139,21 @@ function askMoreEmployees(){
                     //Honestly, Way to tired to complete this feature that is not even mentioned in the assignment
                     //At least it works -_-
                     employeeArray.splice(empResponse, 1)
-                    askMoreEmployees();
+                    askMoreEmployees().then( res => {resolve(res);});
                 })
-            //No more employees to add
+            //No more employees to add (creates Webpage)
+            //Honestly my hope is that the employees get added before all resolves go through
             } else if (userResponse == 'N') {
-                return;
+                deleteWebpage();
+                createWebpage();
+                addToPage().then(res => {
+                    endPage();
+                    resolve(true);
+                })
             //In case Response is Invalid
             } else {
                 console.log(`Invalid Response`);
-                askMoreEmployees();
+                askMoreEmployees().then( res => {resolve(res);});
             }
         })
     });
@@ -153,9 +162,7 @@ function askMoreEmployees(){
 //Actual Running Code
 askManagerInfo().then( res => {
     employeeArray.push(res);
-    askMoreEmployees().then( res => {
-        console.log(employeeArray);
-    })
+    askMoreEmployees().then();
 })
 
 function showAllEmployees(){
@@ -165,9 +172,48 @@ function showAllEmployees(){
 }
 
 function createWebpage(){
-
+    fs.appendFile(
+        'GeneratedHtml.html',
+        '<!DOCTYPE html><html><head></head><body><header><h1>My Team</h1></header><section>',
+        function (err) {
+            if (err) throw err;
+            console.log('Html File Created');
+        }
+    )
 }
 
-function addToPage(employee){
+function addToPage(){
+        return new Promise((resolve, reject) => {
+        employeeArray.forEach(employee => {
+            empInfo = Employee.prototype.getInfo.call(employee);
 
+            fs.appendFile(
+                'GeneratedHtml.html',
+                `<div><h1>${empInfo[0]}</h1><h2>${empInfo[1]}</h2><ul><li>${empInfo[2]}</li><li>${empInfo[3]}</li><li>${empInfo[4]}</li></ul></div>`,
+                function (err) {
+                    if (err) throw err;
+                    console.log(`$Info Added to HTML`);
+                }
+            )
+        });
+        resolve();
+    })
+}
+
+function endPage(){
+    fs.appendFile(
+        'GeneratedHtml.html',
+        '</section></body></html>',
+        function (err) {
+            if (err) throw err;
+            console.log('Html File Completed');
+        }
+    )
+}
+
+function deleteWebpage(){
+    fs.unlink('GeneratedHtml.html', function (err) {
+        if (err) throw err;
+        console.log('Original File deleted!');
+      });
 }
