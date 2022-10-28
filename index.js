@@ -112,10 +112,6 @@ function askMoreEmployees(){
             } else if (userResponse == 'D') {
                 deleteWebpage();
                 createWebpage();
-                addToPage().then(res => {
-                    endPage();
-                    resolve(true);
-                })
             //In case Response is Invalid
             } else {
                 console.log(`Invalid Response`);
@@ -139,74 +135,101 @@ function showAllEmployees(){
 
 function createWebpage(){
     fs.appendFile(
-        'GeneratedHtml.html',
-        '<!DOCTYPE html><html><head></head><body><header><h1>My Team</h1></header><section>',
+        'dist/GeneratedHtml.html',
+        '<!DOCTYPE html><html><head><link rel="stylesheet" href="Style.css"></head><body><header><h1>My Team</h1></header><section>',
         function (err) {
             if (err) throw err;
             console.log('Html File Created');
         }
     )
+    addToPage(0).then(res => {endPage();})
 }
 
-function addToPage(){
-        return new Promise((resolve, reject) => {
-        employeeArray.forEach(employee => {
-            empInfo = Employee.prototype.getInfo.call(employee);
+function addToPage(empnum){
+    return new Promise((resolve, reject) => {
 
-            fs.appendFile(
-                'GeneratedHtml.html',
-                `<div><h1>${empInfo[0]}</h1><h2>${empInfo[1]}</h2><ul><li>${empInfo[2]}</li><a href="mailto:${empInfo[3]}"><li>Email: ${empInfo[3]}</li></a>`,
-                function (err) {
-                    if (err) throw err;
-                    console.log(`Employee Added to HTML`);
+        //gets employee info
+        empInfo = Employee.prototype.getInfo.call(employeeArray[empnum]);
+
+        //first part of eployee generated
+        fs.appendFile(
+            'dist/GeneratedHtml.html',
+            `<div><h1>${empInfo[0]}</h1><h2>${empInfo[1]}</h2><ul><li>${empInfo[2]}</li><li>Email: <a href="mailto:${empInfo[3]}">${empInfo[3]}</li></a>`,
+            function (err) {
+                if (err) throw err;
+                console.log(`Employee Added to HTML`);
+
+                //end generated based on type
+                //A lot of repeted dialouge here, couldn't find a better errorless way to do this
+                if (empInfo[1] == "Manager"){
+                    fs.appendFile(
+                        'dist/GeneratedHtml.html',
+                        `<li>Office: ${empInfo[4]}</li></ul></div>`,
+                        function (err) {
+                            if (err) throw err;
+                            console.log(`Employee Info Added to HTML`);
+                            if (empnum + 1 >= employeeArray.length){
+                                resolve();
+                            } else{
+                                addToPage(empnum + 1).then(res => {resolve();});
+                            }
+                        }
+                    )
+                } else if (empInfo[1] == "Engineer"){
+                    fs.appendFile(
+                        'dist/GeneratedHtml.html',
+                        `<li>Github: <a href="https://github.com/${empInfo[4]}">${empInfo[4]}</a></li></ul></div>`,
+                        function (err) {
+                                if (err) throw err;
+                                console.log(`Employee Info Added to HTML`);
+                                if (empnum + 1 >= employeeArray.length){
+                                    resolve();
+                                } else{
+                                    addToPage(empnum + 1).then(res => {resolve();});
+                                }
+                            }
+                        )
+                } else if (empInfo[1] == "Intern"){
+                    fs.appendFile(
+                        'dist/GeneratedHtml.html',
+                        `<li>School: ${empInfo[4]}</li></ul></div>`,
+                        function (err) {
+                            if (err) throw err;
+                            console.log(`Employee Info Added to HTML`);
+                            if (empnum + 1 >= employeeArray.length){
+                                resolve();
+                            } else{
+                                addToPage(empnum + 1).then(res => {resolve();});
+                            }
+                        }
+                    )
+                } else{
+                    fs.appendFile(
+                        'dist/GeneratedHtml.html',
+                        `</ul></div>`,
+                        function (err) {
+                            if (err) throw err;
+                            console.log(`Employee Info Added to HTML`);
+                            if (empnum + 1 >= employeeArray.length){
+                                resolve();
+                            } else{
+                                addToPage(empnum + 1).then(res => {resolve();});
+                            }
+                        }
+                    )
                 }
-            )
+                //Recursion, not the best solution... but, it is a solution
+        })
 
-            if (empInfo[1] == "Manager"){
-                fs.appendFile(
-                    'GeneratedHtml.html',
-                    `<li>Office: ${empInfo[4]}</li></ul></div>`,
-                    function (err) {
-                        if (err) throw err;
-                        console.log(`Employee Info Added to HTML`);
-                    }
-                )
-            } else if (empInfo[1] == "Engineer"){
-                fs.appendFile(
-                    'GeneratedHtml.html',
-                    `<li>Github: <a href="https://github.com/${empInfo[4]}">${empInfo[4]}</a></li></ul></div>`,
-                    function (err) {
-                        if (err) throw err;
-                        console.log(`Employee Info Added to HTML`);
-                    }
-                )
-            } else if (empInfo[1] == "Intern"){
-                fs.appendFile(
-                    'GeneratedHtml.html',
-                    `<li>School: ${empInfo[4]}</li></ul></div>`,
-                    function (err) {
-                        if (err) throw err;
-                        console.log(`Employee Info Added to HTML`);
-                    }
-                )
-            } else{
-                fs.appendFile(
-                    'GeneratedHtml.html',
-                    `</ul></div>`,
-                    function (err) {
-                        if (err) throw err;
-                        console.log(`Employee Info Added to HTML`);
-                    }
-                )
-            }
-        });
-        resolve();
+
+        
     })
 }
 
 function endPage(){
+
     fs.appendFile(
-        'GeneratedHtml.html',
+        'dist/GeneratedHtml.html',
         '</section></body></html>',
         function (err) {
             if (err) throw err;
@@ -217,7 +240,7 @@ function endPage(){
 
 function deleteWebpage(){
     try {
-        fs.unlink('GeneratedHtml.html', function (err) {
+        fs.unlink('dist/GeneratedHtml.html', function (err) {
             console.log('\nOriginal File Deleted');
         });
     } catch (error) {

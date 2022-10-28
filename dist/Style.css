@@ -1,0 +1,70 @@
+:root{
+    --main: #F7FFF7;
+    --front: #20A4F3;
+    --accent: #52AA5E;
+}
+
+html{
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--main);
+}
+
+body{
+    margin: 0px;
+}
+
+header{
+    background-color: var(--accent);
+    color: var(--main);
+    text-align: center;
+    font-size: 40px;
+    height: 200px;
+    padding-top: 1px;
+}
+
+section{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+div{
+    background-color: var(--main);
+    width: 300px;
+    border: var(--front) 5px solid;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px;
+}
+
+div h1{
+    font-size: 40px;
+    margin: 0px;
+    color: var(--main);
+    background-color: var(--front);
+}
+
+div h2{
+    font-size: 35px;
+    margin: 0px;
+    color: var(--main);
+    background-color: var(--front);
+    padding-bottom: 10px;
+}
+
+div li{
+    text-align: left;
+    font-size: 30px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+
+div a{
+    color: var(--front);
+    transition: 0.25s;
+}
+
+div a:hover{
+    color: var(--accent);
+    transition: 0.5s;
+}
+
